@@ -103,3 +103,14 @@ class RoomOnlySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'num_days_in_adv', 'owner']
         extra_kwargs = {'owner': {'required': False}}
         read_only_fields = ['owner', 'time_slots']
+
+
+class RoomField(serializers.PrimaryKeyRelatedField):
+    def to_representation(self, value):
+        pk = super(RoomField, self).to_representation(value)
+        items = Room.objects.filter(pk=pk)
+        if len(items) > 0:
+            serializer = RoomOnlySerializer(items[0])
+            return serializer.data
+        else:
+            return None
