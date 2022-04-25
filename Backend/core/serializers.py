@@ -1,8 +1,9 @@
 from django.contrib.auth.password_validation import validate_password as default_password_validation
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from models import Room
 
-from userAuth.models import User
+from models import User
 
 # Serializer for User model
 class UserSerializer(serializers.ModelSerializer):
@@ -88,3 +89,17 @@ class UserField(serializers.PrimaryKeyRelatedField):
             return serializer.data
         else:
             return None
+
+
+
+# Room Booking Part
+
+
+class RoomOnlySerializer(serializers.ModelSerializer):
+    owner = UserField(queryset=User.objects.all())
+
+    class Meta:
+        model = Room
+        fields = ['id', 'name', 'num_days_in_adv', 'owner']
+        extra_kwargs = {'owner': {'required': False}}
+        read_only_fields = ['owner', 'time_slots']
