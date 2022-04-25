@@ -77,3 +77,14 @@ class UserRUDSerializer(serializers.ModelSerializer):
                 fields=['email']
             )
         ]
+
+
+class UserField(serializers.PrimaryKeyRelatedField):
+    def to_representation(self, value):
+        pk = super(UserField, self).to_representation(value)
+        items = User.objects.filter(pk=pk)
+        if len(items) > 0:
+            serializer = UserSerializer(items[0])
+            return serializer.data
+        else:
+            return None
