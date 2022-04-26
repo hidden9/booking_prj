@@ -4,9 +4,33 @@ from rest_framework import permissions
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveDestroyAPIView
 
 from core import permissions as my_permissions
-from core.models import Room, TimeSlot, Booking
+from core.models import Room, TimeSlot, Booking, User
 from core.serializers import RoomSerializer, TimeSlotsSerializer, BookingSerializer, \
-    BookingCreateSerializer, RoomCreateSerializer
+    BookingCreateSerializer, RoomCreateSerializer, UserSerializer, UserRUDSerializer
+from rest_framework import permissions
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, get_object_or_404
+from . import permissions as my_permissions
+
+
+# Class based View for User Signup API
+class Signup(CreateAPIView):
+    model = User
+    serializer_class = UserSerializer
+
+
+# Class based View for User Profile Retrieve and Update API
+class Profile(RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated, my_permissions.IsSelf]
+    serializer_class = UserRUDSerializer
+
+    # Select User object to return / update
+    def get_object(self):
+        return get_object_or_404(User.objects.filter(id=self.request.user.id))
+
+    # Get queryset
+    def get_queryset(self):
+        self.id = self.request.user.id
+        return User.objects.filter(id=self.request.user.id)
 
 
 # Class based view for List and Create Room operations
