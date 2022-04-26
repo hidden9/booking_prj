@@ -13,10 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.contrib import admin
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 from core import views as views
+from django.views.static import serve
+from django.urls import path, re_path
+from django.views.generic import TemplateView
+from settings import BASE_DIR
+
+
+# Function to serve static files 
+# (takes path1 and path2 from url regex and passes it to Django's default serve function)
+def my_serve(request, path1, path2, document_root=None, show_indexes=False):
+    return serve(request, str(path1) + '.' + str(path2), document_root=document_root, show_indexes=show_indexes)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +44,11 @@ urlpatterns = [
     path('api/timeslots/<int:id>', views.TimeSlotsRD.as_view(), name="timeslots_rd"),
     path('api/bookings', views.Bookings.as_view(), name="bookings"),
     path('api/bookings/<int:id>', views.BookingsRD.as_view(), name="bookings_rd"),
+
+    re_path(r'^(?P<path1>.*)[.](?P<path2>.*)$', my_serve, {
+        'document_root': os.path.join(BASE_DIR, 'frontend/build'),
+    }, name="frontend_static_files"),
+
+     # Render React index page for any other route (including route '/')
+    re_path('.*', TemplateView.as_view(template_name='index.html'), name="frontend_index")
 ]
