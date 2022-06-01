@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,7 +70,21 @@ TEMPLATES = [
     },
 ]
 
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', '123')
+
+
 WSGI_APPLICATION = 'Backend.wsgi.application'
+
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+             "PASSWORD": "123",
+             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        },
+    },
+}
 
 
 # Database
@@ -124,3 +140,26 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
+
+
+
+# THROTTLE_ZONES = {
+#     'default': {
+#         'VARY':'throttle.zones.RemoteIP',
+#         'NUM_BUCKETS':2,  # Number of buckets worth of history to keep. Must be at least 2
+#         'BUCKET_INTERVAL':5,  # Period of time to enforce limits.
+#         'BUCKET_CAPACITY':10,  # Maximum number of requests allowed within BUCKET_INTERVAL
+#     },
+# }
+
+# # Where to store request counts.
+# THROTTLE_BACKEND = 'throttle.backends.cache.CacheBackend'
+
+# # Optional after Redis backend is chosen ('throttle.backends.redispy.RedisBackend')
+# THROTTLE_REDIS_HOST = 'localhost'
+# THROTTLE_REDIS_PORT = 6379
+# THROTTLE_REDIS_DB = 0
+# THROTTLE_REDIS_AUTH = 'pass'
+
+# # Normally, throttling is disabled when DEBUG=True. Use this to force it to enabled.
+# THROTTLE_ENABLED = True
