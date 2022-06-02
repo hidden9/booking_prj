@@ -1,0 +1,57 @@
+version: '4'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    env_file: .env
+    environment: 
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+      - MONGO_INITDB_USERNAME=${MONGO_DB_USERNAME}
+      - MONGO_INITDB_PASSWORD=${MONGO_DB_PASSWORD}
+    volumes:
+      - ${pwd}/_data/mongo:/data/db
+      - ${pwd}/docker/_mongo/fixtures:/import
+      - ${pwd}/docker/_mongo/scripts/init.sh:/docker-entrypoint-initdb.d/setup.sh
+    ports:
+      - 27017:27017
+
+
+  # mongo:
+  #   image: mongo_second
+  #   container_name: mongo_second
+  #   restart: always
+  #   env_file: .env
+  #   environment: 
+  #     - MONGO_INITDB_ROOT_USERNAME=root
+  #     - MONGO_INITDB_ROOT_PASSWORD=root
+  #     - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+  #     - MONGO_INITDB_USERNAME=${MONGO_DB_USERNAME}
+  #     - MONGO_INITDB_PASSWORD=${MONGO_DB_PASSWORD}
+  #   volumes:
+  #     - root/_data/mongo_second:/data/db
+  #     - root/docker/_mongo_second/fixtures:/import
+  #     - root/docker/_mongo_second/scripts/init.sh:/docker-entrypoint-initdb.d/setup.sh
+  #   ports:
+  #     - 27018:27018
+
+  app:
+    build: ./
+    image: app:latest
+    container_name: app
+    restart: always
+    command: "python manage.py runserver 0.0.0.0:8000"
+    env_file: .env
+    volumes:
+      - ${pwd}/app:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongo
+
+networks:
+  default:
