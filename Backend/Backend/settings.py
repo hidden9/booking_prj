@@ -90,12 +90,34 @@ CACHES = {
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "djongo",
+        "CLIENT": {
+            "host": os.environ.get('MONGO_DB_HOST'),
+            "port": int(os.environ.get('MONGO_DB_PORT_ONE')),
+            "username": os.environ.get('MONGO_DB_USERNAME'),
+            "password": os.environ.get('MONGO_DB_PASSWORD'),
+        },
+
+    },
+    "nonrel": {
+        "ENGINE": "djongo",
+        "NAME": os.environ.get('MONGO_DB_NAME'),
+        "CLIENT": {
+            "host": os.environ.get('MONGO_DB_HOST'),
+            "port": int(os.environ.get('MONGO_DB_PORT_TWO')),
+            "username": os.environ.get('MONGO_DB_USERNAME'),
+            "password": os.environ.get('MONGO_DB_PASSWORD'),
+        },
+        'TEST': {
+            'MIRROR': 'default',
+        },
     }
 }
+
+DATABASE_ROUTERS = ['RoomSlotBookingProject.utils.db_routers.NonRelRouter', ]
 
 
 # Password validation
